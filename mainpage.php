@@ -8,17 +8,40 @@
       <link rel="stylesheet" href="./style.css">
     <title>Document</title>
 </head>
-<body style="padding:5%">  
+<body style="padding:5% ; color:white" >  
 
 
 <?php
 session_start();
 
-// if(!isset($_COOKIE['Status'])) {
-//   echo "The user is " . 'Offline'  . "<br>";
-// } else {
-//   echo "The user is ". $_COOKIE['Status'] . "<br>";
-// }
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['username']) ) {
+	$servername = "localhost";
+	$username = "root";
+	$password = "";
+	$dbname = "logindetails";
+
+	 //2nd part
+	 // Create connection
+		$conn = new mysqli($servername, $username, $password, $dbname);
+		// Check connection
+		if ($conn->connect_error) {
+		die("Connection failed: " . $conn->connect_error);
+		}
+
+		$sql = "SELECT * FROM login_details where username='".$_GET["username"]."' ";
+		$result = $conn->query($sql);
+
+		if ($result->num_rows > 0) {
+		// output data of each row
+		while($row = $result->fetch_assoc()) {
+			echo "Search result found <br>";
+			echo "Username: " . $row["username"]. "<br>" ."E-mail: " . $row["email"]. "<br>" ."Phone: " . $row["phone"]."<br>" ."<br>" ;
+		}
+		} else {
+		echo "0 results";
+		}
+		$conn->close();
+}
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['status']) ) {
 
     if($_GET['status'] == 'offline')
@@ -31,45 +54,103 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['status']) ) {
         setcookie("Status","Online", time() + (3600), "/");
         header("Location: http://localhost:8080/Whatsapp/mainpage.php", true, 307); 
     }
-    // setcookie("Password","", time() + (-3600), "/"); 
-    // unset($_SESSION['Username']);
-    // unset($_SESSION['Password']);
-    // session_destroy();
-    // header("Location: http://localhost:8080/Whatsapp/dashboard.php", true, 307);    
+    
 }
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['action2'])) {
-    // setcookie("Username","", time() + (-3600), "/"); 
-    // setcookie("Password","", time() + (-3600), "/"); 
-    // unset($_SESSION['Username']);
-    // unset($_SESSION['Password']);
-    // session_destroy();
+ 
     echo('HELLO');
     header("Location: /Whatsapp/dashboard.php", true, 307);    
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+	$servername = "localhost";
+	$username = "root";
+	$password = "";
+	$dbname = "logindetails";
+
+	 //2nd part
+	 // Create connection
+		$conn = new mysqli($servername, $username, $password, $dbname);
+		// Check connection
+		if ($conn->connect_error) {
+		die("Connection failed: " . $conn->connect_error);
+		}
+
+		$sql = "SELECT username, password FROM login_details";
+		$result = $conn->query($sql);
+
+		if ($result->num_rows > 0) {
+		// output data of each row
+		while($row = $result->fetch_assoc()) {
+			echo "Usenrname: " . $row["username"]. "<br>"."Password: " . $row["password"]. "<br>";
+		}
+		} else {
+		echo "0 results";
+		}
+		$conn->close();
+
 }
     
 ?>
 
-<div class="card" style="width: 18rem;">
-  <div class="card-body">
-    <h5 class="card-title"><?php echo $_SESSION['Username'] ;?></h5>
-    <h6 class="card-subtitle mb-2 text-muted"><?php echo $_COOKIE['Status'] ;?></h6>
-    <p class="card-text"></p>
-    <input type = "button" value = "Hide Online" onClick="document.location.href='/Whatsapp/mainpage.php?status=offline'"> 
-    <input type = "button" value = "Show Online" onClick="document.location.href='/Whatsapp/mainpage.php?status=online'"> 
-  </div>
+<div class="containter">
+	<div class="row">
+		<div class="col-sm-4">
+			
+				
+	<div class="container p-2">
+		<br/>
+		<div class="row justify-content-center">
+			<div class="col-12">
+				<form class="card card-sm" action="mainpage.php" method="get"> 
+					<div class="card-body row no-gutters align-items-center">
+						<div class="col-auto">
+							<i class="fas fa-search h4 text-body"></i>
+						</div>
+						<!--end of col-->
+						<div class="col">
+							<input class="form-control form-control-sm form-control-borderless" type="search" name="username" placeholder="Search Username">
+						</div>
+						<!--end of col-->
+						<div class="col-auto">
+							<button class="btn btn-sm btn-success" type="submit" onClick="document.location.href='/Whatsapp/mainpage.php?search='">Search</button>
+						</div>
+						<!--end of col-->
+					</div>
+				</form>
+			</div>
+			<!--end of col-->
+			</div>
+	</div>
+	<div class="container">
+		<div class="row justify-content-start">
+			<div class="card" style="width: 18rem;">
+				<div class="card-body">
+				<h5 style="color:black" class="card-title"><?php echo $_SESSION['Username'] ;?></h5>
+				<h6 class="card-subtitle mb-2 text-muted"><?php echo $_COOKIE['Status'] ;?></h6>
+				<p class="card-text"></p>
+				<input type = "button" value = "Hide Online" onClick="document.location.href='/Whatsapp/mainpage.php?status=offline'"> 
+				<input type = "button" value = "Show Online" onClick="document.location.href='/Whatsapp/mainpage.php?status=online'"> 
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<br>
+		<form method = "GET" action = "/Whatsapp/dashboard.php">
+			<input type = "submit"  value = "Dashboard">
+			<!-- <input type="button" value="dashboard" /> -->
+			<input type ="hidden" name="action2" value="true" />
+		</form> 
+
+	</div>
+
 </div>
+		
+	<div class="col-sm-8">
 
-<br>
-
-<form method = "GET" action = "/Whatsapp/dashboard.php">
-    <td>
-    <input type = "submit"  value = "Dashboard">
-    <!-- <input type="button" value="dashboard" /> -->
-    <input type ="hidden" name="action2" value="true" />
-
-    </td>
-</form> 
-    
+	
 <div class="container">
     <div class="row d-flex justify-content-end">
 
@@ -196,6 +277,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['action2'])) {
 	</main>
 </div>
 
+
+
+	</div>
+	
+	</div>
+</div>
+
+
+
+    
 
 </body>
 </html>
